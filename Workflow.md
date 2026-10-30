@@ -66,6 +66,16 @@ npm start
 
 В процессе запуска проекта будет выполнен процесс «Сборки проекта» и запуска результирующего кода.
 
+#### Запустить сервер тестовых данных
+
+```bash
+npm run mock-server
+```
+
+Сервер json-server раздаёт предложения по адресу `http://localhost:3000/offers`.
+Для генерации TSV используйте `npm run cli -- --generate 10 mocks/generated-offers.tsv http://localhost:3000/offers`,
+для импорта файла — `npm run cli -- --import mocks/generated-offers.tsv`.
+
 ## Структура проекта
 
 ### Директория `src`

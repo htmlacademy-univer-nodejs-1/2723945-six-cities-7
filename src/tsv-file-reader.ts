@@ -1,5 +1,6 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { createReadStream } from 'node:fs';
 import { resolve } from 'node:path';
+import { createInterface } from 'node:readline';
 
 import type { Goods, HousingType, Offer } from './types/offer.type.js';
 import type { User } from './types/user.type.js';
@@ -40,7 +41,13 @@ function toBoolean(value: string): boolean {
 }
 
 function toNumber(value: string): number {
-  return Number(value);
+  const numberValue = Number(value);
+
+  if (value.trim() === '' || !Number.isFinite(numberValue)) {
+    throw new Error(`Некорректное значение числа: ${value}`);
+  }
+
+  return numberValue;
 }
 
 function toStringArray(value: string): string[] {
@@ -111,49 +118,71 @@ function parseOffer(row: string[], lineNumber: number): Offer {
   };
 }
 
-export function parseOffersFromTsv(content: string): Offer[] {
-  const lines = content.split(/\r?\n/).filter((line) => line.trim().length > 0);
+export function offerToTsv(offer: Offer): string {
+  return [
+    offer.name,
+    offer.description,
+    offer.publicationDate,
+    offer.city,
+    offer.previewImage,
+    offer.photos.join('|'),
+    String(offer.isPremium),
+    String(offer.isFavorite),
+    String(offer.rating),
+    offer.housingType,
+    String(offer.bedrooms),
+    String(offer.maxAdults),
+    String(offer.price),
+    offer.goods.join('|'),
+    [offer.author.name, offer.author.email, offer.author.avatarUrl, offer.author.type].join('|'),
+    String(offer.commentsCount),
+    [offer.location.latitude, offer.location.longitude].join('|'),
+  ].join('\t');
+}
 
-  if (lines.length === 0) {
+export const OFFERS_TSV_HEADER = EXPECTED_HEADER.join('\t');
+
+export async function readOffersFromFileStream(
+  filePath: string,
+  onOffer: (offer: Offer) => void,
+): Promise<number> {
+  const absolutePath = resolve(filePath);
+  const input = createReadStream(absolutePath, { encoding: 'utf-8' });
+  const lines = createInterface({ input, crlfDelay: Infinity });
+  let lineNumber = 0;
+  let offerCount = 0;
+
+  for await (const line of lines) {
+    lineNumber += 1;
+
+    if (lineNumber === 1) {
+      const header = line.split('\t').map((item) => item.trim());
+
+      if (
+        header.length !== EXPECTED_HEADER.length ||
+        !EXPECTED_HEADER.every((item, index) => header[index] === item)
+      ) {
+        throw new Error('Заголовок TSV-файла не соответствует ожидаемому формату.');
+      }
+
+      continue;
+    }
+
+    if (!line.trim()) {
+      continue;
+    }
+
+    onOffer(parseOffer(line.split('\t'), lineNumber));
+    offerCount += 1;
+  }
+
+  if (lineNumber === 0) {
     throw new Error('TSV-файл пустой.');
   }
 
-  const header = lines[0].split('\t').map((item) => item.trim());
-
-  if (
-    header.length !== EXPECTED_HEADER.length ||
-    !EXPECTED_HEADER.every((item, index) => header[index] === item)
-  ) {
-    throw new Error('Заголовок TSV-файла не соответствует ожидаемому формату.');
-  }
-
-  const dataLines = lines.slice(1);
-
-  if (dataLines.length === 0) {
+  if (offerCount === 0) {
     throw new Error('В TSV-файле отсутствуют строки данных.');
   }
 
-  return dataLines.map((line, index) => parseOffer(line.split('\t'), index + 2));
-}
-
-export function readOffersFromFile(filePath: string): Offer[] {
-  const absolutePath = resolve(filePath);
-
-  if (!existsSync(absolutePath)) {
-    throw new Error(`Файл не найден: ${filePath}`);
-  }
-
-  const fileStats = statSync(absolutePath);
-
-  if (!fileStats.isFile()) {
-    throw new Error(`Указанный путь не является файлом: ${filePath}`);
-  }
-
-  const content = readFileSync(absolutePath, 'utf-8');
-
-  if (!content.trim()) {
-    throw new Error('TSV-файл пустой.');
-  }
-
-  return parseOffersFromTsv(content);
+  return offerCount;
 }

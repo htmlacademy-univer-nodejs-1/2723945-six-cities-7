@@ -3,8 +3,8 @@
 import { readFileSync } from 'node:fs';
 import chalk from 'chalk';
 
-import type { Offer } from './types/offer.type.js';
-import { readOffersFromFile } from './tsv-file-reader.js';
+import { generateOffersFile } from './offer-generator.js';
+import { readOffersFromFileStream } from './tsv-file-reader.js';
 
 function printHelp(): void {
   console.log(chalk.bold.cyan('Программа для подготовки данных для REST API сервера.'));
@@ -29,7 +29,7 @@ function printVersion(): void {
   console.log(getAppVersion());
 }
 
-function handleImport(filepathArgument: string | undefined): void {
+async function handleImport(filepathArgument: string | undefined): Promise<void> {
   if (!filepathArgument) {
     console.error(chalk.red('Ошибка: укажите путь к TSV-файлу после команды --import.'));
     process.exitCode = 1;
@@ -37,12 +37,11 @@ function handleImport(filepathArgument: string | undefined): void {
   }
 
   try {
-    const offers = readOffersFromFile(filepathArgument);
-
-    console.log(chalk.green(`Импортировано ${offers.length} предложений из ${filepathArgument}.`));
-    offers.forEach((offer: Offer) => {
+    const offerCount = await readOffersFromFileStream(filepathArgument, (offer) => {
       console.log(chalk.cyan(`- ${offer.name}`));
     });
+
+    console.log(chalk.green(`Импортировано ${offerCount} предложений из ${filepathArgument}.`));
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Неизвестная ошибка импорта.';
     console.error(chalk.red(`Ошибка импорта: ${message}`));
@@ -50,7 +49,29 @@ function handleImport(filepathArgument: string | undefined): void {
   }
 }
 
-function main(): void {
+async function handleGenerate(
+  countArgument: string | undefined,
+  filepathArgument: string | undefined,
+  urlArgument: string | undefined,
+  argumentCount: number,
+): Promise<void> {
+  if (!countArgument || !filepathArgument || !urlArgument || argumentCount !== 3) {
+    console.error(chalk.red('Ошибка: используйте --generate <n> <filepath> <url>.'));
+    process.exitCode = 1;
+    return;
+  }
+
+  try {
+    const count = await generateOffersFile(countArgument, filepathArgument, urlArgument);
+    console.log(chalk.green(`Сгенерировано ${count} предложений в ${filepathArgument}.`));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Неизвестная ошибка генерации.';
+    console.error(chalk.red(`Ошибка генерации: ${message}`));
+    process.exitCode = 1;
+  }
+}
+
+async function main(): Promise<void> {
   const [command, ...args] = process.argv.slice(2);
 
   if (!command) {
@@ -66,7 +87,10 @@ function main(): void {
       printVersion();
       break;
     case '--import':
-      handleImport(args[0]);
+      await handleImport(args[0]);
+      break;
+    case '--generate':
+      await handleGenerate(args[0], args[1], args[2], args.length);
       break;
     default:
       console.error(chalk.red(`Неизвестная команда: ${command}`));
@@ -76,4 +100,4 @@ function main(): void {
   }
 }
 
-main();
+void main();
