@@ -3,11 +3,13 @@ import { Component } from '../shared/types/index.js';
 import { PinoLogger } from '../shared/libs/logger/index.js';
 import { RestConfig } from '../shared/libs/config/index.js';
 import { RestApplication } from './rest-application.js';
+import { MongoDatabaseClient } from '../shared/libs/database-client/index.js';
 
 const restContainer = new Container();
 
 restContainer.bind(Component.Logger).to(PinoLogger).inSingletonScope();
 restContainer.bind(Component.Config).to(RestConfig).inSingletonScope();
+restContainer.bind(Component.DatabaseClient).to(MongoDatabaseClient).inSingletonScope();
 restContainer.bind(Component.RestApplication).to(RestApplication).inSingletonScope();
 
 export { restContainer };
