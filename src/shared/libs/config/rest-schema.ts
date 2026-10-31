@@ -6,6 +6,10 @@ convict.addFormats(formats);
 export interface RestSchema {
   port: number;
   dbHost: string;
+  dbUser: string;
+  dbPassword: string;
+  dbPort: number;
+  dbName: string;
   salt: string;
 }
 
@@ -21,6 +25,30 @@ export const configRestSchema = convict<RestSchema>({
     format: 'ipaddress',
     default: null,
     env: 'DB_HOST',
+  },
+  dbUser: {
+    doc: 'Database user',
+    format: String,
+    default: null,
+    env: 'DB_USER',
+  },
+  dbPassword: {
+    doc: 'Database password',
+    format: String,
+    default: null,
+    env: 'DB_PASSWORD',
+  },
+  dbName: {
+    doc: 'Database name',
+    format: String,
+    default: null,
+    env: 'DB_NAME',
+  },
+  dbPort: {
+    doc: 'Database server port',
+    format: 'port',
+    default: 27017,
+    env: 'DB_PORT',
   },
   salt: {
     doc: 'Salt for password hashing',

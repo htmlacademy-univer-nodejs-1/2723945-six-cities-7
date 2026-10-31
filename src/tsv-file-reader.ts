@@ -144,7 +144,7 @@ export const OFFERS_TSV_HEADER = EXPECTED_HEADER.join('\t');
 
 export async function readOffersFromFileStream(
   filePath: string,
-  onOffer: (offer: Offer) => void,
+  onOffer: (offer: Offer) => void | Promise<void>,
 ): Promise<number> {
   const absolutePath = resolve(filePath);
   const input = createReadStream(absolutePath, { encoding: 'utf-8' });
@@ -172,7 +172,7 @@ export async function readOffersFromFileStream(
       continue;
     }
 
-    onOffer(parseOffer(line.split('\t'), lineNumber));
+    await onOffer(parseOffer(line.split('\t'), lineNumber));
     offerCount += 1;
   }
 
