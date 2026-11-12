@@ -7,4 +7,6 @@ export const Component = {
   OfferRepository: Symbol.for('OfferRepository'),
   UserService: Symbol.for('UserService'),
   OfferService: Symbol.for('OfferService'),
+  CommentRepository: Symbol.for('CommentRepository'),
+  CommentService: Symbol.for('CommentService'),
 } as const;

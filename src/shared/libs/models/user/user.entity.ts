@@ -1,6 +1,8 @@
 import { getModelForClass, prop, modelOptions } from '@typegoose/typegoose';
 import { USER_TYPES, UserType } from '../../../../types/user.type.js';
 import { Types } from 'mongoose';
+import { Ref } from '@typegoose/typegoose';
+import { OfferEntity } from '../offer/offer.entity.js';
 
 @modelOptions({
   schemaOptions: {
@@ -23,6 +25,9 @@ export class UserEntity {
 
   @prop({ required: true, select: false })
   public password!: string;
+
+  @prop({ ref: () => OfferEntity, default: [] })
+  public favoriteOffers?: Ref<OfferEntity>[];
 }
 
 export const UserModel = getModelForClass(UserEntity);

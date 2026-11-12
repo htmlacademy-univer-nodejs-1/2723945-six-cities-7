@@ -4,7 +4,7 @@ import { Repository } from './repository.interface.js';
 export class MongoRepository<T> implements Repository<T> {
   constructor(
     protected readonly model: Model<T>,
-  ) {}
+  ) { }
 
   public async findById(id: string): Promise<T | null> {
     return this.model.findById(id).exec();
@@ -12,5 +12,17 @@ export class MongoRepository<T> implements Repository<T> {
 
   public async create(item: T): Promise<T> {
     return this.model.create(item);
+  }
+
+  public async update(id: string, item: Partial<T>): Promise<T | null> {
+    return this.model.findByIdAndUpdate(id, item, { new: true }).exec();
+  }
+
+  public async findAll(): Promise<T[]> {
+    return this.model.find().exec();
+  }
+
+  public async delete(id: string): Promise<T | null> {
+    return this.model.findByIdAndDelete(id).exec();
   }
 }

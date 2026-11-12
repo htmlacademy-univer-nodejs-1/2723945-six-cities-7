@@ -4,9 +4,8 @@ import { PinoLogger } from '../shared/libs/logger/index.js';
 import { RestConfig } from '../shared/libs/config/index.js';
 import { RestApplication } from './rest-application.js';
 import { MongoDatabaseClient } from '../shared/libs/database-client/index.js';
-import { UserRepository, OfferRepository } from '../shared/libs/repositories/index.js';
-import { DefaultUserService } from '../shared/libs/services/index.js';
-import { DefaultOfferService } from '../shared/libs/services/index.js';
+import { UserRepository, OfferRepository, CommentRepository } from '../shared/libs/repositories/index.js';
+import { DefaultUserService, DefaultOfferService, DefaultCommentService } from '../shared/libs/services/index.js';
 
 const restContainer = new Container();
 
@@ -18,4 +17,6 @@ restContainer.bind(Component.UserRepository).to(UserRepository).inSingletonScope
 restContainer.bind(Component.OfferRepository).to(OfferRepository).inSingletonScope();
 restContainer.bind(Component.UserService).to(DefaultUserService).inSingletonScope();
 restContainer.bind(Component.OfferService).to(DefaultOfferService).inSingletonScope();
+restContainer.bind(Component.CommentRepository).to(CommentRepository).inSingletonScope();
+restContainer.bind(Component.CommentService).to(DefaultCommentService).inSingletonScope();
 export { restContainer };

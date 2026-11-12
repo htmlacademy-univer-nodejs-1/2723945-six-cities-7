@@ -60,9 +60,6 @@ export class OfferEntity {
   @prop({ required: true, default: false })
   public isPremium!: boolean;
 
-  @prop({ required: true, default: false })
-  public isFavorite!: boolean;
-
   @prop({ required: true })
   public rating!: number;
 

@@ -1,9 +1,10 @@
 import { inject, injectable } from 'inversify';
 
 import { Component } from '../../types/index.js';
-import { UserDocument, UserEntity } from '../models/index.js';
+import { OfferEntity, UserDocument } from '../models/index.js';
 import { UserRepository } from '../repositories/index.js';
 import { UserService } from './user-service.interface.js';
+import { CreateUserDto } from './dto/index.js';
 
 @injectable()
 export class DefaultUserService implements UserService {
@@ -20,11 +21,11 @@ export class DefaultUserService implements UserService {
     return this.userRepository.findByEmail(email) as Promise<UserDocument | null>;
   }
 
-  public async create(user: UserEntity): Promise<UserDocument> {
+  public async create(user: CreateUserDto): Promise<UserDocument> {
     return this.userRepository.create(user) as Promise<UserDocument>;
   }
 
-  public async findOrCreate(user: UserEntity): Promise<UserDocument> {
+  public async findOrCreate(user: CreateUserDto): Promise<UserDocument> {
     const existingUser = await this.userRepository.findByEmail(user.email);
 
     if (existingUser) {
@@ -32,5 +33,17 @@ export class DefaultUserService implements UserService {
     }
 
     return this.userRepository.create(user) as Promise<UserDocument>;
+  }
+
+  public async addToFavorites(userId: string, offerId: string): Promise<UserDocument | null> {
+    return this.userRepository.addToFavorites(userId, offerId);
+  }
+
+  public async removeFromFavorites(userId: string, offerId: string): Promise<UserDocument | null> {
+    return this.userRepository.removeFromFavorites(userId, offerId);
+  }
+
+  public async findFavoriteOffers(userId: string): Promise<OfferEntity[]> {
+    return this.userRepository.findFavoriteOffers(userId);
   }
 }
