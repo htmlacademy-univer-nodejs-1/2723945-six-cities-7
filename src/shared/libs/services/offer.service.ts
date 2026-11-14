@@ -31,8 +31,8 @@ export class DefaultOfferService implements OfferService {
     return this.offerRepository.findById(id);
   }
 
-  public async findAll(): Promise<OfferEntity[]> {
-    return this.offerRepository.findAll();
+  public async findAll(count?: number): Promise<OfferEntity[]> {
+    return this.offerRepository.findAll(count);
   }
 
   public async delete(id: string): Promise<OfferEntity | null> {

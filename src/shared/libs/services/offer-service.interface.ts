@@ -7,7 +7,7 @@ export interface OfferService {
   create(offer: CreateOfferDto): Promise<OfferEntity>;
   update(id: string, offer: UpdateOfferDto): Promise<OfferEntity | null>;
   findById(id: string): Promise<OfferEntity | null>;
-  findAll(): Promise<OfferEntity[]>;
+  findAll(count?: number): Promise<OfferEntity[]>;
   delete(id: string): Promise<OfferEntity | null>;
   findPremiumByCity(city: City): Promise<OfferEntity[]>;
 }

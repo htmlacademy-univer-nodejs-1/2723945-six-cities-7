@@ -11,6 +11,18 @@ export class OfferRepository extends MongoRepository<OfferEntity> {
   }
 
   public async findPremiumByCity(city: City): Promise<OfferEntity[]> {
-    return this.model.find({ city, isPremium: true }).exec();
+    return this.model
+      .find({ city, isPremium: true })
+      .sort({ publicationDate: -1 })
+      .limit(3)
+      .exec();
+  }
+
+  public async findAll(count = 60): Promise<OfferEntity[]> {
+    return this.model
+      .find()
+      .sort({ publicationDate: -1 })
+      .limit(count)
+      .exec();
   }
 }
