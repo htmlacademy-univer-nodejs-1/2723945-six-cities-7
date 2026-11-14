@@ -5,6 +5,7 @@ import { OfferEntity, UserDocument } from '../models/index.js';
 import { UserRepository } from '../repositories/index.js';
 import { UserService } from './user-service.interface.js';
 import { CreateUserDto } from './dto/index.js';
+import { createSHA256 } from '../../helpers/index.js';
 
 @injectable()
 export class DefaultUserService implements UserService {
@@ -19,6 +20,10 @@ export class DefaultUserService implements UserService {
 
   public async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userRepository.findByEmail(email) as Promise<UserDocument | null>;
+  }
+
+  public async findByEmailWithPassword(email: string): Promise<UserDocument | null> {
+    return this.userRepository.findByEmailWithPassword(email);
   }
 
   public async create(user: CreateUserDto): Promise<UserDocument> {
@@ -45,5 +50,21 @@ export class DefaultUserService implements UserService {
 
   public async findFavoriteOffers(userId: string): Promise<OfferEntity[]> {
     return this.userRepository.findFavoriteOffers(userId);
+  }
+
+  public async verifyUser(email: string, password: string, salt: string): Promise<UserDocument | null> {
+    const user = await this.userRepository.findByEmailWithPassword(email);
+
+    if (!user) {
+      return null;
+    }
+
+    const passwordHash = createSHA256(password, salt);
+
+    if (user.password !== passwordHash) {
+      return null;
+    }
+
+    return user;
   }
 }

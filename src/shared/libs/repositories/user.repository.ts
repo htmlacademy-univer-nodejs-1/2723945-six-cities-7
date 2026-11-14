@@ -41,4 +41,11 @@ export class UserRepository extends MongoRepository<UserEntity> {
 
     return user?.favoriteOffers as OfferEntity[] ?? [];
   }
+
+  public async findByEmailWithPassword(email: string): Promise<UserDocument | null> {
+    return this.model
+      .findOne({ email })
+      .select('+password')
+      .exec() as Promise<UserDocument | null>;
+  }
 }

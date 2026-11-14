@@ -12,7 +12,7 @@ import {
   HousingType,
 } from '../../../../types/offer.type.js';
 import { City } from '../../../../types/city.type.js';
-import { UserEntity } from '../user/user.entity.js';
+import type { UserEntity } from '../user/user.entity.js';
 
 class LocationEntity {
   @prop({ required: true })
@@ -78,7 +78,7 @@ export class OfferEntity {
   @prop({ required: true, type: () => [String], enum: GOODS_VALUES })
   public goods!: Goods[];
 
-  @prop({ required: true, ref: () => UserEntity })
+  @prop({ required: true, ref: 'UserEntity' })
   public author!: Ref<UserEntity>;
 
   @prop({ required: true, default: 0 })

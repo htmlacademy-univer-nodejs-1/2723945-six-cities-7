@@ -9,4 +9,6 @@ export interface UserService {
   addToFavorites(userId: string, offerId: string): Promise<UserDocument | null>;
   removeFromFavorites(userId: string, offerId: string): Promise<UserDocument | null>;
   findFavoriteOffers(userId: string): Promise<OfferEntity[]>;
+  findByEmailWithPassword(email: string): Promise<UserDocument | null>;
+  verifyUser(email: string, password: string, salt: string): Promise<UserDocument | null>;
 }

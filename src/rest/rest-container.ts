@@ -6,6 +6,10 @@ import { RestApplication } from './rest-application.js';
 import { MongoDatabaseClient } from '../shared/libs/database-client/index.js';
 import { UserRepository, OfferRepository, CommentRepository } from '../shared/libs/repositories/index.js';
 import { DefaultUserService, DefaultOfferService, DefaultCommentService } from '../shared/libs/services/index.js';
+import { AppExceptionFilter } from './filters/app-exception.filter.js';
+import { OfferController } from './controllers/offer.controller.js';
+import { UserController } from './controllers/user.controller.js';
+import { FavoriteController } from './controllers/favorite.controller.js';
 
 const restContainer = new Container();
 
@@ -19,4 +23,8 @@ restContainer.bind(Component.UserService).to(DefaultUserService).inSingletonScop
 restContainer.bind(Component.OfferService).to(DefaultOfferService).inSingletonScope();
 restContainer.bind(Component.CommentRepository).to(CommentRepository).inSingletonScope();
 restContainer.bind(Component.CommentService).to(DefaultCommentService).inSingletonScope();
+restContainer.bind(Component.ExceptionFilter).to(AppExceptionFilter).inSingletonScope();
+restContainer.bind(Component.OfferController).to(OfferController).inSingletonScope();
+restContainer.bind(Component.UserController).to(UserController).inSingletonScope();
+restContainer.bind(Component.FavoriteController).to(FavoriteController).inSingletonScope();
 export { restContainer };
